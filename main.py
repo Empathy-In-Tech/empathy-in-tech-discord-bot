@@ -14,20 +14,35 @@ DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 
 message_content_1 = Template(
     """
-First Message
+Hey all 👋
+
+I am a Bot, and I'm so glad to be part of this server!
+
+I can help automate pretty much anything
+I am created with code so the possibilities are endless
+
+My current name is ${bot} but don't worry we change it
+
+I was created by ${abe} so tag him and message him with all your questions and comments
+
+I have not yet been deployed yet so I only work when ${abe} has me running on his laptop, but no woories cause I'm real easy to deploy
+
+To demonstrate I created this grey button which assigns the ${podcast} role 
 """
 )
 
 message_content_2 = Template(
     """
-Second Message after buttons
+We can have an additional message after the button
+
+I'll end off with a link button to my source code on GitHub
 """
 )
 
 
 # This is the list of role IDs that will be added as buttons.
 role_ids = [
-    (<ROLE_ID>, "🏄"),  # Role name
+    (1039995112207429805, "💙"),  # Podcast
 ]
 
 
@@ -74,6 +89,12 @@ class RoleButton(discord.ui.Button):
             )
             print(f"{user} left {role}")
 
+class SourceCodeButton(discord.ui.View):
+    def __init__(self):
+        super().__init__()
+
+        url = "https://github.com/abe-101/empathy-in-tech-discord-bot/blob/main/main.py"
+        self.add_item(discord.ui.Button(label='GitHub', url=url))
 
 class Bot(commands.Bot):
     def __init__(self):
@@ -87,10 +108,10 @@ class Bot(commands.Bot):
             activity=discord.Game(name="💙 in 💻"),
         )
         self.color_to_style = {
-            0: discord.ButtonStyle.danger,  # red
-            1: discord.ButtonStyle.blurple,  # purple
-            2: discord.ButtonStyle.success,  # green
-            3: discord.ButtonStyle.secondary,  # gray
+            0: discord.ButtonStyle.secondary,  # gray
+            1: discord.ButtonStyle.danger,  # red
+            2: discord.ButtonStyle.blurple,  # purple
+            3: discord.ButtonStyle.success,  # green
         }
 
     async def on_ready(self):
@@ -99,7 +120,7 @@ class Bot(commands.Bot):
         # We recreate the view as we did in the /post command.
         view = discord.ui.View(timeout=None)
         # Make sure to set the guild ID here to whatever server you want the buttons in!
-        guild = self.get_guild(<SERVER_GUILD>)
+        guild = self.get_guild(826646363553923072)
         count = 0
         for role_id, emoji in role_ids:
             role = guild.get_role(role_id)
@@ -114,27 +135,33 @@ class Bot(commands.Bot):
 
         # Add the view to the bot so that it will watch for button interactions.
         self.add_view(view)
-        channel = self.get_channel(<CHANNEL_ID>)
+        channel = self.get_channel(829853488925114408)
 
         # 1st message
+        message_1_data = {
+            "abe": guild.get_member(834216780586287146).mention,
+            "bot": guild.get_member(1049717857111507055).mention,
+            "podcast": guild.get_role(1039995112207429805).mention,
+                }
         try:
-            message_1 = await channel.fetch_message(<MESSAGE_ID>)
+            message_1 = await channel.fetch_message(1049737305503567882)
             await message_1.edit(
-                content=message_content_1.substitute(rules=rules), view=view
+                content=message_content_1.substitute(message_1_data), view=view
             )
         except discord.errors.NotFound:
             await channel.send(
-                content=message_content_1.substitute(rules=rules), view=view
+                content=message_content_1.substitute(message_1_data), view=view
             )
         # 2nd message
+        message_2_data = {}
         try:
-            message_2 = await channel.fetch_message(<MESSAGE_ID>)
+            message_2 = await channel.fetch_message(1049737308305358878)
             await message_2.edit(
-                content=message_content_2.substitute(intro_circle=intro_circle)
+                content=message_content_2.substitute(message_2_data), view=SourceCodeButton()
             )
         except discord.errors.NotFound:
             await channel.send(
-                content=message_content_2.substitute(intro_circle=intro_circle)
+                content=message_content_2.substitute(message_2_data), view=SourceCodeButton()
             )
 
 
