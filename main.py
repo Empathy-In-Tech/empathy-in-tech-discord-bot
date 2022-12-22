@@ -25,7 +25,7 @@ My current name is ${bot} but don't worry we change it
 
 I was created by ${abe} so tag him and message him with all your questions and comments
 
-I have not yet been deployed yet so I only work when ${abe} has me running on his laptop, but no woories cause I'm real easy to deploy
+I have not yet been deployed yet so I only work when <@834216780586287146> has me running on his laptop, but no woories cause I'm real easy to deploy
 
 To demonstrate I created this grey button which assigns the ${podcast} role 
 """
@@ -103,7 +103,7 @@ class Bot(commands.Bot):
         intents.members = True
 
         super().__init__(
-            command_prefix=commands.when_mentioned_or("!"),
+            command_prefix=commands.when_mentioned_or("?"),
             intents=intents,
             activity=discord.Game(name="💙 in 💻"),
         )
@@ -163,6 +163,18 @@ class Bot(commands.Bot):
             await channel.send(
                 content=message_content_2.substitute(message_2_data), view=SourceCodeButton()
             )
+
+    async def setup_hook(self) -> None:
+        # Load cogs
+        for file in os.listdir(f"./cogs"):
+            if file.endswith(".py"):
+                extension = file[:-3]
+                try:
+                    await bot.load_extension(f"cogs.{extension}")
+                    print(f"Loaded extension '{extension}'")
+                except Exception as e:
+                    exception = f"{type(e).__name__}: {e}"
+                    print(f"Failed to load extension {extension}\n{exception}")
 
 
 bot = Bot()
